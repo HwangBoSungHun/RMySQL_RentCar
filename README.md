@@ -1,6 +1,7 @@
-# RMySQL_RentCar
-'데이터베이스 원리 및 응용' 수업의 프로젝트(2018.11.26 ~ 2018.12.19)  
-선행 작업 - 아래의 MySQL 구문과 같이 DB(rentacar_DB.sql)를 구축하고 data 폴더의 정보를 DB에 import한 후 진행(이전 수업의 homework)  
+# RentCarDB_RMySQL
+- '데이터베이스 원리 및 응용' 수업의 프로젝트(2018.11.26 ~ 2018.12.19)  
+- 개요: __관계형 DBMS인 MySQL 기반으로 간단한 응용 프로그램을 설계하고 구현. 본 숙제의 목적은 숙제 2에서 기술한 렌터카 대여 중계를 위한 데이터베이스 스키마를 기반으로 R 프로그램을 작성하는 것__  
+- 선행 작업(숙제 2에서 구현함): 아래의 MySQL 구문과 같이 DB(rentacar_DB.sql)를 구축하고 data 폴더의 정보를 DB에 import한 후 진행  
 ~~~MYSQL
 create database rentacar;
 use rentacar;
