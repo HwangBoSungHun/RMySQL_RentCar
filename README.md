@@ -56,3 +56,51 @@ init_sql <- function (mydata_name, mydata){
   }
 }
 ~~~
+(1) 함수 이름 및 호출 형태: init_sql(mydata_name, mydata)  
+(2) 설명: mydata_name 에는 MySQL 에 정의한 릴레이션의 이름을 입력하고,
+mydata 에는 mydata_name 에 대응하는 (csv 파일을 읽어들인) 데이터프레임
+을 입력한다. mydata 의 값들을 query 를 통해서 MySQL 내부에 저장하도록
+한다.  
+(3) SQL 문: mydata 의 각각의 값과 mydata_name 을 이용해 "INSERT INTO
+rent (drid, cid, rentdate) VALUES(22, 106, '2018-02-11');“와 같은 query 를
+MySQL 에 보내면 데이터가 MySQL 내부에 저장된다.  
+
+### [2] 데이터 출력 기능  
+~~~R
+# print_sql(mydata_name, col_name): mydata_name에 해당하는 릴레이션을 col_name의 오름차순으로 출력
+# [rent_comp], [drivers], [repair_shop]: 이름(rent_comp_name, dr_name, shop_name)의 오름차순
+# [rent], [repair]: 날짜(rent_start_date, rep_date)의 오름차순
+# [cars]: 등록 ID(car_id)의 오름차순
+print_sql <- function(mydata_name, col_name){
+  query <- paste('select * from', mydata_name, 'order by', col_name, ';',sep = ' ')
+  result <-  data.frame(dbGetQuery(con, query))
+  #print(query)
+  print(result)
+  #dbClearResult(dbListResults(con)[[1]])
+}
+~~~
+(1) 함수 이름 및 호출 형태: print_sql(mydata_name, col_name)  
+(2) 설명: mydata_name 에 해당하는 릴레이션을 col_name 에 해당하는 열의 오름차순 정렬을 통해 출력하는 함수  
+(3) SQL 문: select * from mydata_name order by col_name;  
+
+### [3] 특정 렌터카 정보를 삭제하는 기능
+~~~R
+# delete_car(렌터카의 등록 ID, 렌터카 업체 이름)
+delete_car <- function(car_id, rent_comp_name){
+  query1 <- paste('select car_comp_id from cars c, rent_comp rc where c.car_comp_id = rc.rent_comp_id and rc.rent_comp_name=\'', rent_comp_name,'\';', sep = '')
+  result <- unique(data.frame(dbGetQuery(con, query1)))
+  comp_id <- result[1,1]
+  #print(comp_id)
+  #print(query1)
+  
+  query2 <- paste('delete from cars where car_id=', car_id, ' and car_comp_id=', comp_id, ';', sep='')
+  # print(query2)
+  dbSendQuery(con, query2)
+}
+~~~
+(1) 함수 이름 및 호출 형태: delete_car(car_id, rent_comp_name)  
+(2) 설명: 렌터카 업체 이름(rent_comp_name)을 통해서 렌터카 업체의 id(comp_id)를 찾고, 그 결과를 통해 cars 에서 해당 렌터카 정보를 삭제한다.  
+(3) SQL 문:  
+select car_comp_id from cars c, rent_comp rc where c.car_comp_id =  
+rc.rent_comp_id and rc.rent_comp_name= rent_comp_name;  
+delete from cars where car_id= car_id and car_comp_id= comp_id;  
