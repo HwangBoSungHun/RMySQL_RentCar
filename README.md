@@ -104,3 +104,36 @@ delete_car <- function(car_id, rent_comp_name){
 select car_comp_id from cars c, rent_comp rc where c.car_comp_id =  
 rc.rent_comp_id and rc.rent_comp_name= rent_comp_name;  
 delete from cars where car_id= car_id and car_comp_id= comp_id;  
+
+### [4] 특정 고객의 정보를 수정하는 기능
+~~~R
+~~~
+(1) 함수 이름 및 호출 형태: modify_driver(driver_license, col_name, value)  
+(2) 설명: driver_license 에 해당하는 row 의 col_name 의 값을 value 로 수정  
+(3) SQL 문:  
+update drivers set col_name = 'value' where driver_license= 'driver_license';  
+
+### [5] 특정 정비업소의 정보를 추가하는 기능
+~~~R
+~~~
+(1) 함수 이름 및 호출 형태: add_repair_shop(shop_id, shop_name,  
+shop_addr, shop_phone, shop_admin_name, shop_admin_email)  
+(2) 설명: repair_shop 에 인자들의 정보를 추가  
+(3) SQL 문:  
+insert into repair_shop values(shop_id, 'shop_name', 'shop_name', 'shop_addr',  
+'shop_phone', 'shop_admin_name', 'shop_admin_email');  
+
+### [6] 대여 기간 연장 가능
+~~~R
+~~~
+(1) 함수 이름 및 호출 형태: lengthen_due(name)  
+(2) 설명: dr_name 이 name 인 고객 중 대여기간을 연장할 수 있는  
+rent_id(반납일이 현재 날짜 이후인 rent_id)에 대해서 대여기간을 5 일 연장.  
+기타청구내역 'extended', 기타청구요금 50000.  
+(3) SQL 문:  
+select rent_id from rent r, drivers d where r.driver_license = d.driver_license  
+and dr_name = 'name' and date_add(r.rent_start_date, interval rent_days day)  
+&#62;= __now(); # now()를 이용해서 현재 날짜와 비교해서 가능한 rent_id(able_rent_id)를 찾는다.__  
+update rent set rent_days = rent_days + 5, extra_bill = 'extended', extra_pay  
+= if(extra_pay is null, 50000, extra_pay + 50000) where rent_id =  
+__able_rent_id; # rent_days 를 +5, extra_bill 을 'extended'로 바꾸고, extra_pay는 null 일 경우 50000 으로, null 이 아닐 경우 +50000 해준다.__  
