@@ -61,9 +61,11 @@ init_sql <- function (mydata_name, mydata){
 mydata 에는 mydata_name 에 대응하는 (csv 파일을 읽어들인) 데이터프레임
 을 입력한다. mydata 의 값들을 query 를 통해서 MySQL 내부에 저장하도록
 한다.  
-(3) SQL 문: mydata 의 각각의 값과 mydata_name 을 이용해 "INSERT INTO
-rent (drid, cid, rentdate) VALUES(22, 106, '2018-02-11');“와 같은 query 를
-MySQL 에 보내면 데이터가 MySQL 내부에 저장된다.  
+(3) SQL 문: mydata 의 각각의 값과 mydata_name 을 이용해
+~~~MYSQL
+INSERT INTO rent (drid, cid, rentdate) VALUES(22, 106, '2018-02-11');
+~~~
+와 같은 query 를 MySQL 에 보내면 데이터가 MySQL 내부에 저장된다.  
 
 ### [2] 데이터 출력 기능  
 ~~~R
@@ -81,7 +83,10 @@ print_sql <- function(mydata_name, col_name){
 ~~~
 (1) 함수 이름 및 호출 형태: print_sql(mydata_name, col_name)  
 (2) 설명: mydata_name 에 해당하는 릴레이션을 col_name 에 해당하는 열의 오름차순 정렬을 통해 출력하는 함수  
-(3) SQL 문: select * from mydata_name order by col_name;  
+(3) SQL 문: 
+~~~MYSQL
+select * from mydata_name order by col_name;  
+~~~
 
 ### [3] 특정 렌터카 정보를 삭제하는 기능
 ~~~R
@@ -101,9 +106,11 @@ delete_car <- function(car_id, rent_comp_name){
 (1) 함수 이름 및 호출 형태: delete_car(car_id, rent_comp_name)  
 (2) 설명: 렌터카 업체 이름(rent_comp_name)을 통해서 렌터카 업체의 id(comp_id)를 찾고, 그 결과를 통해 cars 에서 해당 렌터카 정보를 삭제한다.  
 (3) SQL 문:  
+~~~MYSQL
 select car_comp_id from cars c, rent_comp rc where c.car_comp_id =  
 rc.rent_comp_id and rc.rent_comp_name= rent_comp_name;  
 delete from cars where car_id= car_id and car_comp_id= comp_id;  
+~~~
 
 ### [4] 특정 고객의 정보를 수정하는 기능
 ~~~R
@@ -111,7 +118,9 @@ delete from cars where car_id= car_id and car_comp_id= comp_id;
 (1) 함수 이름 및 호출 형태: modify_driver(driver_license, col_name, value)  
 (2) 설명: driver_license 에 해당하는 row 의 col_name 의 값을 value 로 수정  
 (3) SQL 문:  
+~~~MYSQL
 update drivers set col_name = 'value' where driver_license= 'driver_license';  
+~~~
 
 ### [5] 특정 정비업소의 정보를 추가하는 기능
 ~~~R
@@ -120,8 +129,9 @@ update drivers set col_name = 'value' where driver_license= 'driver_license';
 shop_addr, shop_phone, shop_admin_name, shop_admin_email)  
 (2) 설명: repair_shop 에 인자들의 정보를 추가  
 (3) SQL 문:  
-insert into repair_shop values(shop_id, 'shop_name', 'shop_name', 'shop_addr',  
-'shop_phone', 'shop_admin_name', 'shop_admin_email');  
+~~~MYSQL
+insert into repair_shop values(shop_id, 'shop_name', 'shop_name', 'shop_addr', 'shop_phone', 'shop_admin_name', 'shop_admin_email');  
+~~~
 
 ### [6] 대여 기간 연장 가능
 ~~~R
@@ -131,9 +141,61 @@ insert into repair_shop values(shop_id, 'shop_name', 'shop_name', 'shop_addr',
 rent_id(반납일이 현재 날짜 이후인 rent_id)에 대해서 대여기간을 5 일 연장.  
 기타청구내역 'extended', 기타청구요금 50000.  
 (3) SQL 문:  
+~~~MYSQL
 select rent_id from rent r, drivers d where r.driver_license = d.driver_license  
 and dr_name = 'name' and date_add(r.rent_start_date, interval rent_days day)  
-&#62;= __now(); # now()를 이용해서 현재 날짜와 비교해서 가능한 rent_id(able_rent_id)를 찾는다.__  
+>= __now(); # now()를 이용해서 현재 날짜와 비교해서 가능한 rent_id(able_rent_id)를 찾는다. 
 update rent set rent_days = rent_days + 5, extra_bill = 'extended', extra_pay  
 = if(extra_pay is null, 50000, extra_pay + 50000) where rent_id =  
-__able_rent_id; # rent_days 를 +5, extra_bill 을 'extended'로 바꾸고, extra_pay는 null 일 경우 50000 으로, null 이 아닐 경우 +50000 해준다.__  
+able_rent_id; # __rent_days 를 +5, extra_bill 을 'extended'로 바꾸고, extra_pay는 null 일 경우 50000 으로, null 이 아닐 경우 +50000 해준다.__
+~~~
+### [7] 렌터카 대여 회사 삭제 기능
+~~~R
+~~~
+(1) 함수 이름 및 호출 형태: delete_rent_comp(comp_name)  
+(2) 설명: rent_comp 에서 rent_comp_name 이 comp_name 인 것의 정보 삭제  
+(3) SQL 문:  
+delete from rent_comp where rent_comp_name = 'comp_name';  
+
+### [8] 특정 기간의 렌터카 내역 출력 가능
+~~~R
+~~~
+(1) 함수 이름 및 호출 형태: print_drivers_november()  
+(2) 설명: 2018 년 11 월 렌터카를 대여한 모든 고객의 이름과 주소, 전화번호 출력(여러 번 렌트 했더라도 한 번만 출력)  
+(3) SQL 문:  
+select d.dr_name, d.dr_addr, d.dr_phone from rent r, drivers d where  
+r.driver_license=d.driver_license and rent_start_date &#62; '2018-10-31' and  
+rent_start_date &#60; '2018-12-01';  
+
+### [9] 주소에 따른 정비소 출력 기능
+~~~R
+~~~
+(1) 함수 이름 및 호출 형태: print_repair_shop(city)  
+(2) 설명: 해당 도시에 위치한 렌터카 정비소의 모든 정보 출력  
+(3) SQL 문:  
+select * from repair_shop where shop_addr like '%city%';  
+
+### [10] 특정 렌터카 출력 기능
+~~~R
+~~~
+(1) 함수 이름 및 호출 형태: print_cars_2010_5people()  
+(2) 설명: 렌터카 승차 인원이 5 명 이상이고 렌터카 등록일자가 2010 년식인 렌터카의 렌터카 번호, 이름, 대여 가격 출력  
+(3) SQL 문:  
+select car_id, car_name, car_rent_pay from cars where car_cap &#62;= 5 and  
+car_reg_date &#62;= '2010-01-01' and car_reg_date &#60;= '2010-12-31';  
+
+### [11] 렌터카 대여 내역 통계 기능
+~~~R
+~~~
+(1) 함수 이름 및 호출 형태: november_top3()  
+(2) 설명: 2018 년 11 월에 렌트를 가장 많이 한 고객 top3 의 대여 횟수, 바 차트(고객 이름 별 대여 횟수)  
+(3) SQL 문:  
+~~~MYSQL
+select d.dr_name as name, count(&#42;) as count  
+from rent r, drivers d  
+where r.driver_license = d.driver_license  
+and r.rent_start_date &#62; \'2018-10-31\'  
+and r.rent_start_date &#60; \'2018-12-01\'  
+group by d.dr_name  
+order by count(&#42;) desc; # 위의 SQL 문 결과 중 상위 3 개만 뽑아서 result 에 저장한 후, ggplot 을 이용해서 시각화
+~~~
