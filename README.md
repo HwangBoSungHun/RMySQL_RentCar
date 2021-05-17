@@ -281,7 +281,10 @@ order by count(*) desc; # 위의 SQL 문 결과 중 상위 3 개만 뽑아서 re
 ### [2] 데이터 출력 기능  
 <img src = "./img/result2.png" width="100%"></center>  
 ### [3] 특정 렌터카 정보를 삭제하는 기능  
+삭제 전  
 <img src = "./img/result3.png" width="100%"></center>  
+삭제 후  
+<img src = "./img/result3_2.png" width="100%"></center>  
 ### [4] 특정 고객의 정보를 수정하는 기능  
 <img src = "./img/result4.png" width="100%"></center>  
 ### [5] 특정 정비 업소의 정보를 추가하는 기능  
