@@ -1,6 +1,6 @@
 # RMySQL_RentCar
 '데이터베이스 원리 및 응용' 수업의 프로젝트(2018.11.26 ~ 2018.12.19)  
-선행 작업 - 아래의 MySQL 구문과 같이 DB(rentacar_DB.sql)를 구축한 후 진행(이전 수업의 homework)  
+선행 작업 - 아래의 MySQL 구문과 같이 DB(rentacar_DB.sql)를 구축하고 data 폴더의 정보를 DB에 import한 후 진행(이전 수업의 homework)  
 ~~~MYSQL
 create database rentacar;
 use rentacar;
