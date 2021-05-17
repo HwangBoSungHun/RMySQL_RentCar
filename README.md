@@ -274,5 +274,5 @@ where r.driver_license = d.driver_license
 and r.rent_start_date > \'2018-10-31\'  
 and r.rent_start_date < \'2018-12-01\'  
 group by d.dr_name  
-order by count(&#42;) desc; # 위의 SQL 문 결과 중 상위 3 개만 뽑아서 result 에 저장한 후, ggplot 을 이용해서 시각화
+order by count(*) desc; # 위의 SQL 문 결과 중 상위 3 개만 뽑아서 result 에 저장한 후, ggplot 을 이용해서 시각화
 ~~~
