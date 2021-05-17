@@ -107,13 +107,21 @@ delete_car <- function(car_id, rent_comp_name){
 (2) 설명: 렌터카 업체 이름(rent_comp_name)을 통해서 렌터카 업체의 id(comp_id)를 찾고, 그 결과를 통해 cars 에서 해당 렌터카 정보를 삭제한다.  
 (3) SQL 문:  
 ~~~MYSQL
-select car_comp_id from cars c, rent_comp rc where c.car_comp_id =  
-rc.rent_comp_id and rc.rent_comp_name= rent_comp_name;  
+select car_comp_id 
+from cars c, rent_comp rc 
+where c.car_comp_id = rc.rent_comp_id and rc.rent_comp_name= rent_comp_name;  
 delete from cars where car_id= car_id and car_comp_id= comp_id;  
 ~~~
 
 ### [4] 특정 고객의 정보를 수정하는 기능
 ~~~R
+# modify_driver(운전면허번호, col_name, value): 운전면허번호에 해당하는 row의 col_name의 값을 value로 수정. 
+# drivers의 값(value)들은 모두 숫자형이 아니므로 수정할 값을 작은 따옴표로 감싸준다.
+modify_driver <- function(driver_license, col_name, value) {
+  query <- paste('update drivers set ', col_name, '=\'', value, '\' where driver_license=\'', driver_license, '\';', sep = '')
+  #print(query)
+  dbSendQuery(con, query)
+}
 ~~~
 (1) 함수 이름 및 호출 형태: modify_driver(driver_license, col_name, value)  
 (2) 설명: driver_license 에 해당하는 row 의 col_name 의 값을 value 로 수정  
@@ -124,6 +132,12 @@ update drivers set col_name = 'value' where driver_license= 'driver_license';
 
 ### [5] 특정 정비업소의 정보를 추가하는 기능
 ~~~R
+# add_repair_shop(정비소ID, 정비소이름, 정비소주소, 정비소전화번호, 담당자이름, 담당자이메일)
+add_repair_shop <- function(shop_id, shop_name, shop_addr, shop_phone, shop_admin_name, shop_admin_email){
+  query <- paste('insert into repair_shop values(', shop_id, ',\'', shop_name, '\',\'', shop_addr, '\',\'', shop_phone, '\',\'', shop_admin_name, '\',\'', shop_admin_email,'\');', sep = '')
+  #print(query)
+  dbSendQuery(con, query)
+}
 ~~~
 (1) 함수 이름 및 호출 형태: add_repair_shop(shop_id, shop_name,  
 shop_addr, shop_phone, shop_admin_name, shop_admin_email)  
@@ -135,6 +149,25 @@ insert into repair_shop values(shop_id, 'shop_name', 'shop_name', 'shop_addr', '
 
 ### [6] 대여 기간 연장 가능
 ~~~R
+# lengthen_due(name): dr_name이 name인 고객 중 대여기간을 연장할 수 있는 rent_id에 대해서 대여기간을 5일 연장. 기타청구내역 'extended', 기타청구요금 50000.
+lengthen_due <- function(name){
+  # query: rent_days를 +5, r2.extra_bill을 'extended'로 바꾸고, 
+  # extra_pay는 null일 경우 50000으로, null이 아닐 경우 +50000 해준다.
+  query1 <- 'select rent_id from rent r, drivers d where r.driver_license = d.driver_license and dr_name ='
+  query1 <- paste(query1, '\'', name, '\' and date_add(r.rent_start_date, interval rent_days day) >= now();', sep='')
+  able_rent_id <- dbGetQuery(con, query1) # able_rent_id는 대여 기간을 연장할 수 있는 rent_id. 즉, 반납일이 현재 날짜 이후인 rent_id.
+
+  if(nrow(able_rent_id) == 0){
+    print('There are no rows that meet the condition.')
+  }else{
+    # able_rent_id의 길이만큼 반복하면서 query를 날림.
+    for(i in 1:nrow(able_rent_id)){
+      query2 <- 'update rent set rent_days = rent_days + 5, extra_bill = \'extended\', extra_pay = if(extra_pay is null, 50000, extra_pay + 50000) where rent_id = '
+      query2 <- paste(query2, able_rent_id[i,1], sep = '')
+      dbSendQuery(con, query2)
+    }
+  }
+}
 ~~~
 (1) 함수 이름 및 호출 형태: lengthen_due(name)  
 (2) 설명: dr_name 이 name 인 고객 중 대여기간을 연장할 수 있는  
@@ -142,50 +175,94 @@ rent_id(반납일이 현재 날짜 이후인 rent_id)에 대해서 대여기간�
 기타청구내역 'extended', 기타청구요금 50000.  
 (3) SQL 문:  
 ~~~MYSQL
-select rent_id from rent r, drivers d where r.driver_license = d.driver_license  
-and dr_name = 'name' and date_add(r.rent_start_date, interval rent_days day)  
->= __now(); # now()를 이용해서 현재 날짜와 비교해서 가능한 rent_id(able_rent_id)를 찾는다. 
-update rent set rent_days = rent_days + 5, extra_bill = 'extended', extra_pay  
-= if(extra_pay is null, 50000, extra_pay + 50000) where rent_id =  
-able_rent_id; # __rent_days 를 +5, extra_bill 을 'extended'로 바꾸고, extra_pay는 null 일 경우 50000 으로, null 이 아닐 경우 +50000 해준다.__
+select rent_id 
+from rent r, drivers d 
+where r.driver_license = d.driver_license 
+and dr_name = 'name' 
+and date_add(r.rent_start_date, interval rent_days day) >= now(); # now()를 이용해서 현재 날짜와 비교해서 가능한 rent_id(able_rent_id)를 찾는다. 
+update rent set rent_days = rent_days + 5, extra_bill = 'extended', extra_pay = if(extra_pay is null, 50000, extra_pay + 50000) where rent_id = able_rent_id; # rent_days 를 +5, extra_bill 을 'extended'로 바꾸고, extra_pay는 null 일 경우 50000 으로, null 이 아닐 경우 +50000 해준다.
 ~~~
 ### [7] 렌터카 대여 회사 삭제 기능
 ~~~R
+# delete_rent_comp(comp_name): rent_comp에서 rent_comp_name이 comp_name인 것의 정보 삭제
+delete_rent_comp <- function(comp_name) {
+  query <- 'delete from rent_comp where rent_comp_name = \''
+  query <- paste(query, comp_name, '\';', sep='')
+  dbSendQuery(con, query)
+}
 ~~~
 (1) 함수 이름 및 호출 형태: delete_rent_comp(comp_name)  
 (2) 설명: rent_comp 에서 rent_comp_name 이 comp_name 인 것의 정보 삭제  
-(3) SQL 문:  
+(3) SQL 문:
+~~~MYSQL
 delete from rent_comp where rent_comp_name = 'comp_name';  
+~~~
 
 ### [8] 특정 기간의 렌터카 내역 출력 가능
 ~~~R
+# print_drivers_november(): 2018년 11월 렌터카를 대여한 모든 고객의 이름과 주소, 전화번호 출력(여러 번 렌트 했더라도 한 번만 출력)
+print_drivers_november <- function(){
+  query <- 'select d.dr_name, d.dr_addr, d.dr_phone from rent r, drivers d where r.driver_license=d.driver_license and rent_start_date > \'2018-10-31\' and rent_start_date < \'2018-12-01\';'
+  unique(dbGetQuery(con, query))
+}
 ~~~
 (1) 함수 이름 및 호출 형태: print_drivers_november()  
 (2) 설명: 2018 년 11 월 렌터카를 대여한 모든 고객의 이름과 주소, 전화번호 출력(여러 번 렌트 했더라도 한 번만 출력)  
 (3) SQL 문:  
-select d.dr_name, d.dr_addr, d.dr_phone from rent r, drivers d where  
-r.driver_license=d.driver_license and rent_start_date &#62; '2018-10-31' and  
-rent_start_date &#60; '2018-12-01';  
+~~~MYSQL
+select d.dr_name, d.dr_addr, d.dr_phone 
+from rent r, drivers d 
+where r.driver_license=d.driver_license and rent_start_date > '2018-10-31' and rent_start_date < '2018-12-01';  
+~~~
 
 ### [9] 주소에 따른 정비소 출력 기능
 ~~~R
+# print_repair_shop(도시명): 해당 도시에 위치한 렌터카 정비소의 모든 정보 출력
+print_repair_shop <- function(city){
+  query <- paste('select * from repair_shop where shop_addr like \'%', city, '%\';', sep = '')
+  #print(query)
+  dbGetQuery(con, query)  
+}
 ~~~
 (1) 함수 이름 및 호출 형태: print_repair_shop(city)  
 (2) 설명: 해당 도시에 위치한 렌터카 정비소의 모든 정보 출력  
 (3) SQL 문:  
+~~~MYSQL
 select * from repair_shop where shop_addr like '%city%';  
+~~~
 
 ### [10] 특정 렌터카 출력 기능
 ~~~R
+# print_cars_2010_5people(): 렌터카 승차 인원이 5명 이상이고 렌터카 등록일자가 2010년식인 렌터카의 렌터카 번호, 이름, 대여 가격 출력
+print_cars_2010_5people <- function(){
+  query <- 'select car_id, car_name, car_rent_pay from cars where car_cap >= 5 and car_reg_date >= \'2010-01-01\' and car_reg_date <= \'2010-12-31\';'
+  #print(query)
+  dbGetQuery(con, query)
+}
 ~~~
 (1) 함수 이름 및 호출 형태: print_cars_2010_5people()  
 (2) 설명: 렌터카 승차 인원이 5 명 이상이고 렌터카 등록일자가 2010 년식인 렌터카의 렌터카 번호, 이름, 대여 가격 출력  
 (3) SQL 문:  
-select car_id, car_name, car_rent_pay from cars where car_cap &#62;= 5 and  
-car_reg_date &#62;= '2010-01-01' and car_reg_date &#60;= '2010-12-31';  
-
+~~~MYSQL
+select car_id, car_name, car_rent_pay 
+from cars where car_cap >= 5 and car_reg_date >= '2010-01-01' and car_reg_date <= '2010-12-31';  
+~~~
 ### [11] 렌터카 대여 내역 통계 기능
 ~~~R
+library(ggplot2)
+
+november_top3 <- function(){
+  query <- 'select d.dr_name as name, count(*) as count 
+from rent r, drivers d 
+where r.driver_license = d.driver_license 
+and r.rent_start_date > \'2018-10-31\' 
+and r.rent_start_date < \'2018-12-01\'
+group by d.dr_name 
+order by count(*) desc;'
+  
+  result <- as.data.frame(dbGetQuery(con, query))[1:3,1:2]
+  ggplot(data = result, aes(x = name, y = count, fill = name)) + geom_bar(stat = 'identity')
+}
 ~~~
 (1) 함수 이름 및 호출 형태: november_top3()  
 (2) 설명: 2018 년 11 월에 렌트를 가장 많이 한 고객 top3 의 대여 횟수, 바 차트(고객 이름 별 대여 횟수)  
@@ -194,8 +271,8 @@ car_reg_date &#62;= '2010-01-01' and car_reg_date &#60;= '2010-12-31';
 select d.dr_name as name, count(&#42;) as count  
 from rent r, drivers d  
 where r.driver_license = d.driver_license  
-and r.rent_start_date &#62; \'2018-10-31\'  
-and r.rent_start_date &#60; \'2018-12-01\'  
+and r.rent_start_date > \'2018-10-31\'  
+and r.rent_start_date < \'2018-12-01\'  
 group by d.dr_name  
 order by count(&#42;) desc; # 위의 SQL 문 결과 중 상위 3 개만 뽑아서 result 에 저장한 후, ggplot 을 이용해서 시각화
 ~~~
