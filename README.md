@@ -279,12 +279,22 @@ order by count(*) desc; # 위의 SQL 문 결과 중 상위 3 개만 뽑아서 re
 
 ## 3. 실행 결과  
 ### [2] 데이터 출력 기능  
+<img src = "./img/result2.png" width="100%"></center>  
 ### [3] 특정 렌터카 정보를 삭제하는 기능  
+<img src = "./img/result3.png" width="100%"></center>  
 ### [4] 특정 고객의 정보를 수정하는 기능  
+<img src = "./img/result4.png" width="100%"></center>  
 ### [5] 특정 정비 업소의 정보를 추가하는 기능  
+<img src = "./img/result5.png" width="100%"></center>  
 ### [6] 대여기간 연장 기능  
+<img src = "./img/result6.png" width="100%"></center>  
 ### [7] 렌터카 대여 회사 삭제 기능  
+<img src = "./img/result7.png" width="100%"></center>  
 ### [8] 특정 기간의 렌터카 내역 출력 기능  
+<img src = "./img/result8.png" width="100%"></center>  
 ### [9] 주소에 따른 정비소 출력 기능  
+<img src = "./img/result9.png" width="100%"></center>  
 ### [10] 특정 렌터카 출력 기능  
+<img src = "./img/result10.png" width="100%"></center>  
 ### [11] 렌터카 대여 내역 통계 기능  
+<img src = "./img/result11.png" width="100%"></center>  
