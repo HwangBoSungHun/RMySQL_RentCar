@@ -1,0 +1,13 @@
+car_id,car_comp_id,car_name,car_number,car_cap,car_detail,car_rent_pay,car_reg_date
+1,6,Avante,12a3231,5,Hyundai Motor\'s front-wheel drive semi-middle sedan,83000,2011-11-11
+2,2,SantaFe,152d9822,7,A mid-size SUV with a monocoque body type produced by Hyundai Motor\'s front-wheelers modern car,149000,2015-12-23
+3,1,G70,54b0639,5,The midsize sports sedan of Genesis,232000,2018-04-24
+4,3,Grandeur,19a7777,5,Hyundai Motor\'s high-end front-wheel drive sedan,189000,2009-03-11
+5,6,Ray,67e8016,6,Kia Motors\' Box-typed Light Vehicle,109000,2014-11-30
+6,4,Spark,52c3108,4,Chevrolet of light vehicles,63000,2017-07-07
+7,1,Spark,152a3018,4,Chevrolet of light vehicles,62000,2018-03-22
+8,2,Mini,39b2764,5,A front-wheel drive of the bmw,130000,2010-04-01
+9,1,Qm3,52e3108,6,Renault Samsung Motors Small SUV,112000,2016-12-21
+10,2,Sm3,91d1121,5,Renault Samsung Motor Co.\'s semi-middle sedan,91000,2010-05-11
+11,2,Sonata,132a1212,5,Hyundai Motor\'s mid-size front-wheel drive,99000,2010-10-01
+12,3,CSL_class,23g9882,5,Mercedes Benz\'s semi-large 4-door coupe sedan/station wagon,229000,2015-12-03
