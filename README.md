@@ -381,6 +381,6 @@ order by count(*) desc; # 위의 SQL 문 결과 중 상위 3 개만 뽑아서 re
 ### [9] 주소에 따른 정비소 출력 기능  
 <img src = "./img/result9.png" width="100%"></center>  
 ### [10] 특정 렌터카 출력 기능  
-<img src = "./img/result10.png" width="10%"></center>  
+<img src = "./img/result10.png" width="30%"></center>  
 ### [11] 렌터카 대여 내역 통계 기능  
 <img src = "./img/result11.png" width="50%"></center>  
